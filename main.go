@@ -70,6 +70,13 @@ func Resp(writer http.ResponseWriter, code int, data interface{}, message string
 func main() {
 	// 绑定请求和处理函数
 	http.HandleFunc("/user/login", userLogin)
+
+	// 1、提供静态资源目录支持
+	//http.Handle("/", http.FileServer(http.Dir(".")))
+	// 提供指定目录的静态文件支持
+	http.Handle("/asset/",
+		http.FileServer(http.Dir(".")))
+
 	// 启动 web 服务器
 	http.ListenAndServe(":8080", nil)
 }
