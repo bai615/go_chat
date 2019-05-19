@@ -302,7 +302,7 @@
                     },
                     loadfriends:function(){
                         var that = this;
-                        post("contact/friend",{userid:userId()},function(res){
+                        post("contact/loadFriend",{userid:userId()},function(res){
                             that.friends = res.rows ||[];
                             var usermap = usermap;
                             for(var i in res.rows){

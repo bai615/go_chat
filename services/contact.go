@@ -9,7 +9,7 @@ import (
 type ContactService struct {
 }
 
-// 自动添加好友
+// 添加好友
 func (service *ContactService) AddFriend(
 	userid, // 用户id 10086,
 	dstid int64) error {
@@ -37,14 +37,14 @@ func (service *ContactService) AddFriend(
 	// 插自己的
 	_, e2 := session.InsertOne(models.Contact{
 		Ownerid:  userid,
-		Dstid:   dstid,
+		Dstid:    dstid,
 		Cate:     models.CONCAT_CATE_USER,
 		Createat: time.Now(),
 	})
 	// 插对方的
 	_, e3 := session.InsertOne(models.Contact{
 		Ownerid:  dstid,
-		Dstid:   userid,
+		Dstid:    userid,
 		Cate:     models.CONCAT_CATE_USER,
 		Createat: time.Now(),
 	})
@@ -62,4 +62,20 @@ func (service *ContactService) AddFriend(
 			return e3
 		}
 	}
+}
+
+// 查找好友
+func (service *ContactService) SearchFriend(userId int64) ([]models.User) {
+	contacts := make([]models.Contact, 0)
+	objIds := make([]int64, 0)
+	DBEngine.Where("ownerid = ? and cate = ?", userId, models.CONCAT_CATE_USER).Find(&contacts)
+	for _, v := range contacts {
+		objIds = append(objIds, v.Dstid);
+	}
+	users := make([]models.User, 0)
+	if len(objIds) == 0 {
+		return users
+	}
+	DBEngine.In("id", objIds).Find(&users)
+	return users
 }
