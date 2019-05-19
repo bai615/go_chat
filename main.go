@@ -31,6 +31,7 @@ func main() {
 	http.HandleFunc("/user/register", controllers.UserRegister)
 	http.HandleFunc("/contact/addFriend", controllers.AddFriend)
 	http.HandleFunc("/contact/loadFriend", controllers.LoadFriend)
+	http.HandleFunc("/contact/loadCommunity", controllers.LoadCommunity)
 
 	// 1、提供静态资源目录支持
 	// http.Handle("/", http.FileServer(http.Dir(".")))

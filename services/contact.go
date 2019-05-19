@@ -70,7 +70,7 @@ func (service *ContactService) SearchFriend(userId int64) ([]models.User) {
 	objIds := make([]int64, 0)
 	DBEngine.Where("ownerid = ? and cate = ?", userId, models.CONCAT_CATE_USER).Find(&contacts)
 	for _, v := range contacts {
-		objIds = append(objIds, v.Dstid);
+		objIds = append(objIds, v.Dstid)
 	}
 	users := make([]models.User, 0)
 	if len(objIds) == 0 {
@@ -78,4 +78,20 @@ func (service *ContactService) SearchFriend(userId int64) ([]models.User) {
 	}
 	DBEngine.In("id", objIds).Find(&users)
 	return users
+}
+
+func (service *ContactService) SearchCommunity(userId int64) ([]models.Community) {
+	contacts := make([]models.Contact, 0)
+	comIds := make([]int64, 0)
+
+	DBEngine.Where("ownerid = ? and cate = ?", userId, models.CONCAT_CATE_COMUNITY).Find(&contacts)
+	for _, v := range contacts {
+		comIds = append(comIds, v.Dstid)
+	}
+	coms := make([]models.Community, 0)
+	if len(comIds) == 0 {
+		return coms
+	}
+	DBEngine.In("id", comIds).Find(&coms)
+	return coms
 }

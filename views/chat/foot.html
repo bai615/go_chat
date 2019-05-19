@@ -313,7 +313,7 @@
                     },
                     loadcommunitys:function(){
                         var that = this;
-                        post("contact/community",{userid:userId()},function(res){
+                        post("contact/loadCommunity",{userid:userId()},function(res){
                             that.communitys = res.rows ||[];
                         })
                     },
