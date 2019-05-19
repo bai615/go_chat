@@ -5,6 +5,9 @@ import (
 	"encoding/json"
 	"log"
 	"html/template"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/go-xorm/xorm"
+	"fmt"
 )
 
 func userLogin(writer http.ResponseWriter,
@@ -39,6 +42,26 @@ func userLogin(writer http.ResponseWriter,
 		// 返回失败
 		Resp(writer, -1, nil, "用户名或者密码错误")
 	}
+}
+
+var DBEngine *xorm.Engine
+
+func init() {
+	driverName := "mysql"
+	dataSourceName := "helocard:helocardpwd@(127.0.0.1:3306)/go_chat?charset=utf8"
+	DBEngine, err := xorm.NewEngine(driverName, dataSourceName)
+	if nil != err {
+		log.Fatal(err.Error())
+	}
+	// 是否显示 SQL 语句
+	DBEngine.ShowSQL(true)
+	// 数据库最大打开的连接数
+	DBEngine.SetMaxOpenConns(2)
+
+	// 自动建表
+	//DBEngine.Sync2(new(User))
+
+	fmt.Println("init data base ok")
 }
 
 type ResponseData struct {

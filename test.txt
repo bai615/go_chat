@@ -4,3 +4,5 @@ curl http://localhost:8080/user/login -X POST -d "mobile=18600000000&password=12
 windows cmd:
 start http://127.0.0.1:8080/user/login.shtml
 
+go get github.com/go-xorm/xorm
+go get github.com/go-sql-driver/mysql
