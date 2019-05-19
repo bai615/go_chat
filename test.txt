@@ -1,0 +1,2 @@
+
+curl http://localhost:8080/user/login -X POST -d "mobile=18600000000&password=123456"
