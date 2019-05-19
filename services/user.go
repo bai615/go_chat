@@ -54,16 +54,29 @@ func (s *UserService) Login(
 	mobile,
 	plainPassword string) (user models.User, err error) {
 
+	// 通过手机号查询用户
 	userModel := models.User{}
 	_, err = DBEngine.Where("mobile=?", mobile).Get(&userModel)
 	if nil != err {
 		return userModel, err
 	}
 
+	if userModel.Id == 0 {
+		return userModel, errors.New("该用户不存在")
+	}
+
+	// 对比密码
 	loginok := util.ValidatePasswd(plainPassword, userModel.Salt, userModel.Password)
 	if !loginok {
 		return userModel, errors.New("用户名或者密码错误")
 	}
+
+	// 刷新 token，安全
+	str := fmt.Sprintf("%d", time.Now().Unix())
+	token := util.MD5Encode(str)
+	userModel.Token = token
+
+	DBEngine.ID(userModel.Id).Cols("token").Update(&userModel)
 
 	return userModel, nil
 }

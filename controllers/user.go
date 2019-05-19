@@ -32,25 +32,6 @@ func UserLogin(writer http.ResponseWriter,
 	} else {
 		util.RespOk(writer, user, "")
 	}
-/*
-    loginok := false
-	if mobile == "18600000000" && password == "123456" {
-		loginok = true
-	}
-
-	if loginok {
-		// 返回成功
-		// data: {"id": 1, "token": "xxx"}
-		data := make(map[string]interface{})
-		data["id"] = 1
-		data["token"] = "test"
-		util.RespOk(writer, data, "")
-
-	} else {
-		// 返回失败
-		util.RespFail(writer, "用户名或者密码错误")
-	}
-*/
 }
 
 func UserRegister(writer http.ResponseWriter,
