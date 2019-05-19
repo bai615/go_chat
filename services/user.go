@@ -39,6 +39,8 @@ func (s *UserService) Register(
 	userModel.Salt = fmt.Sprintf("%06d", rand.Int31n(10000))
 	userModel.Password = util.MakePasswd(plainPassword, userModel.Salt)
 
+	userModel.Token = fmt.Sprintf("%08d", rand.Int31())
+
 	userModel.Createat = time.Now()
 
 	_, err = DBEngine.InsertOne(&userModel)

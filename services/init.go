@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	_ "github.com/go-sql-driver/mysql"
+	"errors"
+	"go_chat/models"
 )
 
 var DBEngine *xorm.Engine
@@ -12,7 +14,8 @@ var DBEngine *xorm.Engine
 func init() {
 	driverName := "mysql"
 	dataSourceName := "helocard:helocardpwd@(127.0.0.1:3306)/go_chat?charset=utf8"
-	DBEngine, err := xorm.NewEngine(driverName, dataSourceName)
+	err := errors.New("")
+	DBEngine, err = xorm.NewEngine(driverName, dataSourceName)
 	if nil != err {
 		log.Fatal(err.Error())
 	}
@@ -22,7 +25,7 @@ func init() {
 	DBEngine.SetMaxOpenConns(2)
 
 	// 自动建表
-	//DBEngine.Sync2(new(User))
+	DBEngine.Sync2(new(models.User))
 
 	fmt.Println("init data base ok")
 }

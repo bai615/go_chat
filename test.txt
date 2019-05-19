@@ -6,3 +6,44 @@ start http://127.0.0.1:8080/user/login.shtml
 
 go get github.com/go-xorm/xorm
 go get github.com/go-sql-driver/mysql
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// 启动时，创建数据表
+API server listening at: 127.0.0.1:63106
+[xorm] [info]  2019/05/19 17:36:15.495965 [SQL] SELECT `TABLE_NAME`, `ENGINE`, `TABLE_ROWS`, `AUTO_INCREMENT`, `TABLE_COMMENT` from `INFORMATION_SCHEMA`.`TABLES` WHERE `TABLE_SCHEMA`=? AND (`ENGINE`='MyISAM' OR `ENGINE` = 'InnoDB' OR `ENGINE` = 'TokuDB') [go_chat]
+[xorm] [info]  2019/05/19 17:36:15.498676 [SQL] CREATE TABLE IF NOT EXISTS `user` (`id` BIGINT(64) PRIMARY KEY AUTO_INCREMENT NOT NULL, `mobile` VARCHAR(20) NULL, `password` VARCHAR(40) NULL, `avatar` VARCHAR(150) NULL, `sex` VARCHAR(2) NULL, `nickname` VARCHAR(20) NULL, `salt` VARCHAR(10) NULL, `online` INT(10) NULL, `token` VARCHAR(40) NULL, `memo` VARCHAR(140) NULL, `createat` DATETIME NULL) DEFAULT CHARSET utf8
+init data base ok
+
+
+curl http://localhost:8080/user/register -X POST -d "mobile=18600000000&password=123456"
+{"code":0,"message":"","data":{"id":1,"mobile":"18600000000","avatar":"","sex":"U","nickname":"user1298498081","online":0,"token":"","memo":"","createat":"2019-05-19T17:37:15.276935911+08:00"}}
+
+
+[xorm] [info]  2019/05/19 17:37:15.276309 [SQL] SELECT `id`, `mobile`, `password`, `avatar`, `sex`, `nickname`, `salt`, `online`, `token`, `memo`, `createat` FROM `user` WHERE (mobile=?) LIMIT 1 []interface {}{"18600000000"}
+[xorm] [info]  2019/05/19 17:37:15.277036 [SQL] INSERT INTO `user` (`mobile`,`password`,`avatar`,`sex`,`nickname`,`salt`,`online`,`token`,`memo`,`createat`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) []interface {}{"18600000000", "69a5f32d315c5761e1a4245a21e0d912", "", "U", "user1298498081", "007887", 0, "", "", "2019-05-19 17:37:15"}
+
+
+curl http://localhost:8080/user/register -X POST -d "mobile=18600000000&password=123456"
+{"code":-1,"message":"该手机号已经注册"}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// 再次启动时：
+API server listening at: 127.0.0.1:63612
+[xorm] [info]  2019/05/19 17:42:56.253136 [SQL] SELECT `TABLE_NAME`, `ENGINE`, `TABLE_ROWS`, `AUTO_INCREMENT`, `TABLE_COMMENT` from `INFORMATION_SCHEMA`.`TABLES` WHERE `TABLE_SCHEMA`=? AND (`ENGINE`='MyISAM' OR `ENGINE` = 'InnoDB' OR `ENGINE` = 'TokuDB') [go_chat]
+[xorm] [info]  2019/05/19 17:42:56.256244 [SQL] SELECT `COLUMN_NAME`, `IS_NULLABLE`, `COLUMN_DEFAULT`, `COLUMN_TYPE`, `COLUMN_KEY`, `EXTRA`,`COLUMN_COMMENT` FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA` = ? AND `TABLE_NAME` = ? [go_chat user]
+[xorm] [info]  2019/05/19 17:42:56.257315 [SQL] SELECT `INDEX_NAME`, `NON_UNIQUE`, `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`STATISTICS` WHERE `TABLE_SCHEMA` = ? AND `TABLE_NAME` = ? [go_chat user]
+init data base ok
+
+
+curl http://localhost:8080/user/register -X POST -d "mobile=18600000000&password=123456"
+{"code":-1,"message":"该手机号已经注册"}
+
+[xorm] [info]  2019/05/19 17:44:49.919800 [SQL] SELECT `id`, `mobile`, `password`, `avatar`, `sex`, `nickname`, `salt`, `online`, `token`, `memo`, `createat` FROM `user` WHERE (mobile=?) LIMIT 1 []interface {}{"18600000000"}
+
+curl http://localhost:8080/user/register -X POST -d "mobile=18600000001&password=123456"
+{"code":0,"message":"","data":{"id":2,"mobile":"18600000001","avatar":"","sex":"U","nickname":"user2019727887","online":0,"token":"939984059","memo":"","createat":"2019-05-19T17:44:59.096312173+08:00"}}
+
+
+[xorm] [info]  2019/05/19 17:44:59.095900 [SQL] SELECT `id`, `mobile`, `password`, `avatar`, `sex`, `nickname`, `salt`, `online`, `token`, `memo`, `createat` FROM `user` WHERE (mobile=?) LIMIT 1 []interface {}{"18600000001"}
+[xorm] [info]  2019/05/19 17:44:59.096406 [SQL] INSERT INTO `user` (`mobile`,`password`,`avatar`,`sex`,`nickname`,`salt`,`online`,`token`,`memo`,`createat`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) []interface {}{"18600000001", "71857e521418f03eda9461d086636236", "", "U", "user2019727887", "001847", 0, "939984059", "", "2019-05-19 17:44:59"}

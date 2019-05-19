@@ -5,6 +5,10 @@ import (
 	"encoding/json"
 	"log"
 	"html/template"
+	"go_chat/services"
+	"fmt"
+	"math/rand"
+	"go_chat/models"
 )
 
 func userLogin(writer http.ResponseWriter,
@@ -38,6 +42,26 @@ func userLogin(writer http.ResponseWriter,
 	} else {
 		// 返回失败
 		Resp(writer, -1, nil, "用户名或者密码错误")
+	}
+}
+
+var userService services.UserService
+
+func userRegister(writer http.ResponseWriter,
+	request *http.Request) {
+
+	request.ParseForm()
+	mobile := request.PostForm.Get("mobile")
+	plainPassword := request.PostForm.Get("password")
+	nickname := fmt.Sprintf("user%06d", rand.Int31())
+	avatar := ""
+	sex := models.SEX_UNKNOW
+
+	user, err := userService.Register(mobile, plainPassword, nickname, avatar, sex)
+	if nil != err {
+		Resp(writer, -1, nil, err.Error())
+	} else {
+		Resp(writer, 0, user, "")
 	}
 }
 
@@ -89,9 +113,10 @@ func RegisterView() {
 func main() {
 	// 绑定请求和处理函数
 	http.HandleFunc("/user/login", userLogin)
+	http.HandleFunc("/user/register", userRegister)
 
 	// 1、提供静态资源目录支持
-	//http.Handle("/", http.FileServer(http.Dir(".")))
+	// http.Handle("/", http.FileServer(http.Dir(".")))
 
 	// 2、指定目录的静态文件
 	http.Handle("/asset/",
