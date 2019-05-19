@@ -9,6 +9,8 @@ import (
 	"go_chat/util"
 )
 
+var userService services.UserService
+
 func UserLogin(writer http.ResponseWriter,
 	request *http.Request) {
 	// 数据库操作
@@ -24,7 +26,14 @@ func UserLogin(writer http.ResponseWriter,
 	mobile := request.PostForm.Get("mobile")
 	password := request.PostForm.Get("password")
 
-	loginok := false
+	user, err := userService.Login(mobile, password)
+	if nil != err {
+		util.RespFail(writer, err.Error())
+	} else {
+		util.RespOk(writer, user, "")
+	}
+/*
+    loginok := false
 	if mobile == "18600000000" && password == "123456" {
 		loginok = true
 	}
@@ -41,9 +50,8 @@ func UserLogin(writer http.ResponseWriter,
 		// 返回失败
 		util.RespFail(writer, "用户名或者密码错误")
 	}
+*/
 }
-
-var userService services.UserService
 
 func UserRegister(writer http.ResponseWriter,
 	request *http.Request) {

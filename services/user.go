@@ -54,5 +54,16 @@ func (s *UserService) Login(
 	mobile,
 	plainPassword string) (user models.User, err error) {
 
-	return user, nil
+	userModel := models.User{}
+	_, err = DBEngine.Where("mobile=?", mobile).Get(&userModel)
+	if nil != err {
+		return userModel, err
+	}
+
+	loginok := util.ValidatePasswd(plainPassword, userModel.Salt, userModel.Password)
+	if !loginok {
+		return userModel, errors.New("用户名或者密码错误")
+	}
+
+	return userModel, nil
 }

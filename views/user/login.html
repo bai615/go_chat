@@ -23,7 +23,7 @@
         </div>
         <div class="mui-input-row">
             <label>密码</label>
-            <input v-model="user.passwd" placeholder="请输入密码"  type="password" class="mui-input-clear mui-input" >
+            <input v-model="user.password" placeholder="请输入密码"  type="password" class="mui-input-clear mui-input" >
         </div>
     </form>
     <div class="mui-content-padded">
@@ -43,7 +43,7 @@
             return {
                 user:{
                     mobile:"",
-                    passwd:""
+                    password:""
                 }
             }
         },
@@ -58,7 +58,7 @@
                 util.post("user/login",this.user).then(res=>{
                     console.log(res)
                     if(res.code!=0){
-                        mui.toast(res.msg)
+                        mui.toast(res.message)
                     }else{
                         //location.replace("//127.0.0.1/demo/index.shtml")
                         mui.toast("登录成功,即将跳转")
