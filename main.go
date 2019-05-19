@@ -68,6 +68,24 @@ func Resp(writer http.ResponseWriter, code int, data interface{}, message string
 	writer.Write(ret)
 }
 
+// 注册模板
+func RegisterView() {
+	tpl, err := template.ParseGlob("view/**/*")
+	if nil != err {
+		// 打印错误并直接退出
+		log.Fatal(err.Error())
+	}
+
+	for _, v := range tpl.Templates() {
+		tplName := v.Name()
+
+		http.HandleFunc(tplName, func(writer http.ResponseWriter,
+			request *http.Request) {
+			tpl.ExecuteTemplate(writer, tplName, nil)
+		})
+	}
+}
+
 func main() {
 	// 绑定请求和处理函数
 	http.HandleFunc("/user/login", userLogin)
@@ -79,6 +97,7 @@ func main() {
 	http.Handle("/asset/",
 		http.FileServer(http.Dir(".")))
 
+	/*
 	// user/login.shtml
 	http.HandleFunc("/user/login.shtml", func(writer http.ResponseWriter, request *http.Request) {
 		// 解析
@@ -100,6 +119,9 @@ func main() {
 		}
 		tpl.ExecuteTemplate(writer, "/user/register.shtml", nil)
 	})
+	*/
+
+	RegisterView()
 
 	// 启动 web 服务器
 	http.ListenAndServe(":8080", nil)
