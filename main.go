@@ -29,6 +29,7 @@ func main() {
 	// 绑定请求和处理函数
 	http.HandleFunc("/user/login", controllers.UserLogin)
 	http.HandleFunc("/user/register", controllers.UserRegister)
+	http.HandleFunc("/contact/addFriend", controllers.AddFriend)
 
 	// 1、提供静态资源目录支持
 	// http.Handle("/", http.FileServer(http.Dir(".")))

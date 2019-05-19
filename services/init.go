@@ -25,7 +25,9 @@ func init() {
 	DBEngine.SetMaxOpenConns(2)
 
 	// 自动建表
-	DBEngine.Sync2(new(models.User))
+	DBEngine.Sync2(new(models.User),
+		new(models.Contact),
+		new(models.Community))
 
 	fmt.Println("init data base ok")
 }

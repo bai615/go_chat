@@ -334,14 +334,15 @@
                         document.querySelector('.mui-popup-input input').type = 'number';
                     },
                     _addfriend:function(dstobj){
+                        var that = this
                         var user = userInfo();
 
-                        post("user/addfriend",{dstid:dstobj,userid: user.id,pic:user.avatar,content:user.nickname,memo: "请求加你为好友"},function(res){
-                            if(res.code==200){
+                        post("contact/addFriend",{dstid:dstobj,userid: user.id,pic:user.avatar,content:user.nickname,memo: "请求加你为好友"},function(res){
+                            if(res.code==0){
                                 mui.toast("添加成功");
                                 that.loadfriends();
                             }else{
-                                mui.toast(res.msg);
+                                mui.toast(res.message);
                             }
                         })
                     },
