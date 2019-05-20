@@ -58,3 +58,9 @@ API server listening at: 127.0.0.1:60890
 [xorm] [info]  2019/05/19 20:54:36.652378 [SQL] CREATE TABLE IF NOT EXISTS `contact` (`id` BIGINT(20) PRIMARY KEY AUTO_INCREMENT NOT NULL, `ownerid` BIGINT(20) NULL, `dstid` BIGINT(20) NULL, `cate` INT(11) NULL, `memo` VARCHAR(120) NULL, `createat` DATETIME NULL) DEFAULT CHARSET utf8
 [xorm] [info]  2019/05/19 20:54:36.662588 [SQL] CREATE TABLE IF NOT EXISTS `community` (`id` BIGINT(20) PRIMARY KEY AUTO_INCREMENT NOT NULL, `name` VARCHAR(30) NULL, `ownerid` BIGINT(20) NULL, `icon` VARCHAR(250) NULL, `cate` INT(11) NULL, `memo` VARCHAR(120) NULL, `createat` DATETIME NULL) DEFAULT CHARSET utf8
 init data base ok
+
+//////////////////////////////////////////////////////////////////////////////////////////
+
+go get github.com/go-xorm/xorm
+go get github.com/gorilla/websocket
+go get gopkg.in/fatih/set.v0

@@ -80,6 +80,7 @@ func (service *ContactService) SearchFriend(userId int64) ([]models.User) {
 	return users
 }
 
+// 查找群
 func (service *ContactService) SearchCommunity(userId int64) ([]models.Community) {
 	contacts := make([]models.Contact, 0)
 	comIds := make([]int64, 0)
