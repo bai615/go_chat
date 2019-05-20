@@ -34,13 +34,14 @@ func main() {
 	http.HandleFunc("/contact/loadCommunity", controllers.LoadCommunity)
 
 	http.HandleFunc("/chat", controllers.Chat)
+	http.HandleFunc("/attach/upload", controllers.Upload)
 
 	// 1、提供静态资源目录支持
 	// http.Handle("/", http.FileServer(http.Dir(".")))
 
 	// 2、指定目录的静态文件
-	http.Handle("/asset/",
-		http.FileServer(http.Dir(".")))
+	http.Handle("/asset/", http.FileServer(http.Dir(".")))
+	http.Handle("/mnt/", http.FileServer(http.Dir(".")))
 
 	/*
 	// user/login.shtml
