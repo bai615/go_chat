@@ -287,12 +287,23 @@
 
                     },
                     initwebsocket:function(){
+                        console.log('host: ' + location.host)
+                        var url = "ws://" + location.host + "/chat?id=" + userId() + "&token=" + util.parseQuery("token")
+                        this.webSocket = new WebSocket(url)
+
+                        // 消息处理
                         this.webSocket.onmessage = function(evt){
-                            this.onmessage(JSON.parse(evt.data));
+                            if(evt.data.indexOf("}") > -1) {
+                                this.onmessage(JSON.parse(evt.data))
+                            }else{
+                                console.log("recv<==" + evt.data)
+                            }
                         }.bind(this)
+                        // 关闭回调
                         this.webSocket.onclose=function (evt) {
                             console.log(evt.data)
                         }
+                        // 出错回调
                         this.webSocket.onerror=function (evt) {
                             console.log(evt.data)
                         }
@@ -304,7 +315,7 @@
                         var that = this;
                         post("contact/loadFriend",{userid:userId()},function(res){
                             that.friends = res.rows ||[];
-                            var usermap = usermap;
+                            var usermap = this.usermap;
                             for(var i in res.rows){
                                 usermap[res.rows[i].id]=res.rows[i];
                             }
