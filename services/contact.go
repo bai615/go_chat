@@ -96,3 +96,76 @@ func (service *ContactService) SearchCommunity(userId int64) ([]models.Community
 	DBEngine.In("id", comIds).Find(&coms)
 	return coms
 }
+
+// 建群
+func (service *ContactService) CreateCommunity(comm models.Community) (ret models.Community, err error) {
+	if len(comm.Name) == 0 {
+		err = errors.New("缺少群名称")
+		return ret, err
+	}
+	if comm.Ownerid == 0 {
+		err = errors.New("请先登录")
+		return ret, err
+	}
+	com := models.Community{
+		Ownerid: comm.Ownerid,
+	}
+	num, err := DBEngine.Count(&com)
+
+	if (num > 5) {
+		err = errors.New("一个用户最多只能创见5个群")
+		return com, err
+	} else {
+		comm.Createat = time.Now()
+		session := DBEngine.NewSession()
+		session.Begin()
+		_, err = session.InsertOne(&comm)
+		if err != nil {
+			session.Rollback()
+			return com, err
+		}
+		_, err = session.InsertOne(
+			models.Contact{
+				Ownerid:  comm.Ownerid,
+				Dstid:    comm.Id,
+				Cate:     models.CONCAT_CATE_COMUNITY,
+				Createat: time.Now(),
+			})
+		if err != nil {
+			session.Rollback()
+		} else {
+			session.Commit()
+		}
+		return com, err
+	}
+}
+
+// 加群
+func (service *ContactService) JoinCommunity(userId, comId int64) error {
+	cot := models.Contact{
+		Ownerid: userId,
+		Dstid:   comId,
+		Cate:    models.CONCAT_CATE_COMUNITY,
+	}
+	DBEngine.Get(&cot)
+	if (cot.Id == 0) {
+		cot.Createat = time.Now()
+		_, err := DBEngine.InsertOne(cot)
+		return err
+	} else {
+		return nil
+	}
+
+}
+
+func (service *ContactService) SearchCommunityIds(userId int64) (comIds []int64) {
+	// todo 获取用户全部群 ID
+	contacts := make([]models.Contact, 0)
+	comIds = make([]int64, 0)
+
+	DBEngine.Where("ownerid = ? and cate = ?", userId, models.CONCAT_CATE_COMUNITY).Find(&contacts)
+	for _, v := range contacts {
+		comIds = append(comIds, v.Dstid)
+	}
+	return comIds
+}

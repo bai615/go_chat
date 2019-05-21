@@ -32,6 +32,8 @@ func main() {
 	http.HandleFunc("/contact/addFriend", controllers.AddFriend)
 	http.HandleFunc("/contact/loadFriend", controllers.LoadFriend)
 	http.HandleFunc("/contact/loadCommunity", controllers.LoadCommunity)
+	http.HandleFunc("/contact/createCommunity", controllers.CreateCommunity)
+	http.HandleFunc("/contact/joinCommunity", controllers.JoinCommunity)
 
 	http.HandleFunc("/chat", controllers.Chat)
 	http.HandleFunc("/attach/upload", controllers.Upload)

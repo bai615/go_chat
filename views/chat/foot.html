@@ -366,8 +366,8 @@
                     },
                     _joincomunity:function(dstobj){
                         var that = this;
-                        post("user/joincommunity",{dstid:dstobj},function(res){
-                            if(res.code==200){
+                        post("contact/joinCommunity",{userid:userId(), dstid:dstobj},function(res){
+                            if(res.code==0){
                                 mui.toast("添加成功");
 
                                 that.loadcommunitys();

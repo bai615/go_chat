@@ -75,6 +75,13 @@ func Chat(writer http.ResponseWriter, request *http.Request) {
 		GroupSets: set.New(set.ThreadSafe),
 	}
 
+	// todo 获取用户全部群 ID
+	comIds := contactService.SearchCommunityIds(userId)
+	// 刷新
+	for _, v := range comIds {
+		node.GroupSets.Add(v)
+	}
+
 	// todo userid 和 node 形成绑定关系
 	rwlocker.Lock()
 	clientMap[userId] = node
@@ -101,6 +108,19 @@ func sendproc(node *Node) {
 			}
 		}
 	}
+}
+
+// todo 添加新的群ID到用户的groupset中
+func AddGroupId(userId, gid int64) {
+	// 取得node
+	rwlocker.Lock()
+	node, ok := clientMap[userId]
+	if ok {
+		node.GroupSets.Add(gid)
+	}
+	// clientMap[userId] = node
+	rwlocker.Unlock()
+	// 添加gid到set
 }
 
 // 接收协程
@@ -132,6 +152,11 @@ func dispatch(data []byte) {
 		sendMsg(msg.Dstid, data)
 	case CMD_ROOM_MSG: // 群聊
 		// todo 群聊转发逻辑
+		for _, v := range clientMap {
+			if v.GroupSets.Has(msg.Dstid) {
+				v.DataQueue <- data
+			}
+		}
 	case CMD_HEART: // 心跳
 		// todo 一般啥也不做
 	}
