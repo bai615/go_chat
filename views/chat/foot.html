@@ -119,6 +119,7 @@
                         document.getElementById('audio4play').play();
                     },
                     startrecorder:function(){
+                        console.log('startrecorder')
                         let audioTarget = document.getElementById('audio');
                         var types = ["video/webm",
                             "audio/webm",
@@ -137,11 +138,16 @@
                             mui.toast("编码不支持")
                             return ;
                         }
+                        console.log(suporttype)
                         this.duration = new Date().getTime();
                         navigator.mediaDevices.getUserMedia({audio: true, video: false})
                                 .then((stream) => {
+                                    console.log('getUserMedia')
                                     this.recorder = new MediaRecorder(stream);
                                     audioTarget.srcObject = stream;
+
+                                    console.log(this.recorder)
+                                    console.log(this.recorder.ondataavailable(event))
 
                                     this.recorder.ondataavailable = (event) => {
                                         console.log("ondataavailable",event);
@@ -157,6 +163,7 @@
                         });
                     },
                     stoprecorder :function() {
+                        console.log('stoprecorder')
                         if(typeof this.recorder.stop=="function"){
                             this.recorder.stop();
                         }
