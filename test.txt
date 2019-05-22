@@ -64,3 +64,9 @@ init data base ok
 go get github.com/go-xorm/xorm
 go get github.com/gorilla/websocket
 go get gopkg.in/fatih/set.v0
+
+go get github.com/aliyun/aliyun-oss-go-sdk/oss
+golang.org/x/time/rate 无法安装：
+cd $GOPATH/src/golang.org/x/
+git clone https://github.com/golang/time.git time
+git clone git@github.com:golang/time.git
