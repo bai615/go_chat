@@ -40,7 +40,7 @@
 <meta name="Keywords" content="无人售货机，小程序，推送，群聊,单聊app">
 <link rel="stylesheet" href="/asset/plugins/mui/css/mui.css" />
 <link rel="stylesheet" href="/asset/css/chat.css" />
-
+<link rel="stylesheet" href="/asset/css/audio.css" />
 <script src="/asset/plugins/mui/js/mui.js" ></script>
 <script src="/asset/js/vue.min.js" ></script>
 <script src="/asset/js/util.js" ></script>
@@ -81,24 +81,30 @@
                 formdata.append("file",dom.files[0])
                 xhr.send(formdata);
             }
-            function uploadblob(uri,blob,fn){
-                var xhr = new XMLHttpRequest();
-                xhr.open("POST","//"+location.host+"/"+uri, true);
-                // 添加http头，发送信息至服务器时内容编码类型
-                xhr.onreadystatechange = function() {
-                    if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 304)) {
-                        fn.call(this, JSON.parse(xhr.responseText));
-                    }
-                };
-                var _data=[];
-                var formdata = new FormData();
-                formdata.append("filetype",".mp3");
-                if(!! userId()){
-                    formdata.append("userid",userId());
-                }
-                formdata.append("file",blob)
-                xhr.send(formdata);
+   function uploadblob(uri,blob,filetype,fn){
+       var xhr = new XMLHttpRequest();
+       xhr.open("POST","//"+location.host+"/"+uri, true);
+       // 添加http头，发送信息至服务器时内容编码类型
+       xhr.onreadystatechange = function() {
+           if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 304)) {
+               fn.call(this, JSON.parse(xhr.responseText));
+           }
+       };
+       var _data=[];
+       var formdata = new FormData();
+       formdata.append("fileType",filetype);
+       if(!! userId()){
+           formdata.append("userid",userId());
+       }
+       formdata.append("file",blob)
+       xhr.send(formdata);
    }
+       function uploadaudio(uri,blob,fn){
+                uploadblob(uri,blob,".mp3",fn)
+        }
+       function uploadvideo(uri,blob,fn){
+           uploadblob(uri,blob,".mp4",fn)
+       }
 </script>
 
 <style>

@@ -9,6 +9,9 @@
 
         })
     }
+    function userId(){
+        return parseInt(util.parseQuery("id"))
+    }
     var app=new Vue(
             {
                 el:"#pageapp",
@@ -93,6 +96,7 @@
                     allChunks:[],
                     iscomplete:false,
                     duration:0,
+                    showprocess:false,
                 },
                 created:function(){
                     this.loadfriends();
@@ -102,12 +106,10 @@
                     if(!!user){
                         this.profile.avatar = user.avatar;
                         this.profile.nickname = user.nickname;
-
                         this.profile.memo = user.memo;
-                        var url="ws://"+location.host+"/chat?id="+userId()+"&token=" +user.token;
-                        this.webSocket=new WebSocket(url);
-                        this.initwebsocket()
                     }
+
+                    this.initwebsocket()
 
                 },
                 mounted:function(){
@@ -119,7 +121,6 @@
                         document.getElementById('audio4play').play();
                     },
                     startrecorder:function(){
-                        console.log('startrecorder')
                         let audioTarget = document.getElementById('audio');
                         var types = ["video/webm",
                             "audio/webm",
@@ -138,36 +139,39 @@
                             mui.toast("编码不支持")
                             return ;
                         }
-                        console.log(suporttype)
+
                         this.duration = new Date().getTime();
                         navigator.mediaDevices.getUserMedia({audio: true, video: false})
-                                .then((stream) => {
-                                    console.log('getUserMedia')
+                                .then(function(stream){
+                                    this.showprocess = true
                                     this.recorder = new MediaRecorder(stream);
                                     audioTarget.srcObject = stream;
 
-                                    console.log(this.recorder)
-                                    console.log(this.recorder.ondataavailable(event))
-
                                     this.recorder.ondataavailable = (event) => {
-                                        console.log("ondataavailable",event);
-                                        uploadblob("attach/upload",event.data,res=>{
+                                        console.log("ondataavailable");
+                                        uploadblob("attach/upload",event.data,".mp3",res=>{
                                             var duration = Math.ceil((new Date().getTime()-this.duration)/1000);
                                             this.sendaudiomsg(res.data,duration);
-                                            console.log("attach/upload",res.data)
                                         })
+                                        stream.getTracks().forEach(function (track) {
+                                            track.stop();
+                                        });
+                                        this.showprocess = false
                                     }
                                     this.recorder.start();
-                                }).catch(function(err){
-                            mui.toast(err.msg)
-                        });
+                                }.bind(this)).
+                        catch(function(err){
+                            console.log(err)
+                            mui.toast(err)
+                            this.showprocess = false
+                        }.bind(this));
                     },
                     stoprecorder :function() {
-                        console.log('stoprecorder')
                         if(typeof this.recorder.stop=="function"){
                             this.recorder.stop();
                         }
-
+                        this.showprocess = false
+                        console.log("stoprecorder")
 
                     },
                     dispatchplugin:function(item){
@@ -196,9 +200,9 @@
                         }
                         var that = this;
                         for(var id in res){
-                            console.log("res[i]",id,res[id])
+                            //console.log("res[i]",id,res[id])
                             post(res[id],{},function(pkginfo){
-                                console.log("post res[i]",id,res[id],pkginfo)
+                                //console.log("post res[i]",id,res[id],pkginfo)
                                 var baseurl= config.baseurl+"/"+pkginfo.id+"/"
                                 for(var j in pkginfo.assets){
                                     pkginfo.assets[j] = baseurl+pkginfo.assets[j];
@@ -220,7 +224,7 @@
 
                         }
                         data.ismine = userId()==msg.userid;
-                        console.log(data.ismine,userId(),msg.userid)
+                        //console.log(data.ismine,userId(),msg.userid)
                         data.user = user;
                         data.msg = msg;
                         this.msglist = this.msglist.concat(data)
@@ -258,27 +262,28 @@
                         msg.url=url;
                         msg.amount = num;
                         this.showmsg(userInfo(),msg)
-                        console.log("sendaudiomsg",this.msglist);
+                        //console.log("sendaudiomsg",this.msglist);
                         this.webSocket.send(JSON.stringify(msg))
                     },
                     singlemsg:function(user){
-                        console.log(user)
+                        //console.log(user)
                         this.win = "single";
                         this.title = "和"+user.nickname+"聊天中";
-                        this.msgcontext.dstid = user.id;
+                        this.msgcontext.dstid = parseInt(user.id);
                         this.msgcontext.cmd = 10;
                     },
                     groupmsg:function(group){
 
                         this.win = "group";
                         this.title=group.name;
-                        this.msgcontext.dstid = group.id;
+                        this.msgcontext.dstid = parseInt(group.id);
                         this.msgcontext.cmd = 11;
                     },
                     loaduserinfo:function(userid,cb){
+                        userid = ""+userid;
                         var userinfo = this.usermap[userid];
                         if(!userinfo){
-                            post("user/find",{id:userid},function(res){
+                            post("user/find",{id:parseInt(userid)},function(res){
                                 cb(res.data);
                                 this.usermap[userid] = res.data;
                             }.bind(this))
@@ -294,26 +299,28 @@
 
                     },
                     initwebsocket:function(){
-                        console.log('host: ' + location.host)
-                        var url = "ws://" + location.host + "/chat?id=" + userId() + "&token=" + util.parseQuery("token")
-                        this.webSocket = new WebSocket(url)
-
-                        // 消息处理
+                        var url="wss://"+location.host+"/chat?id="+userId()+"&token=" +util.parseQuery("token");
+                        this.webSocket=new WebSocket(url);
+                        //消息处理
                         this.webSocket.onmessage = function(evt){
-                            if(evt.data.indexOf("}") > -1) {
-                                this.onmessage(JSON.parse(evt.data))
+                            //{"data":"}",...}
+                            if(evt.data.indexOf("}")>-1){
+                                this.onmessage(JSON.parse(evt.data));
                             }else{
-                                console.log("recv<==" + evt.data)
+                                console.log("recv<=="+evt.data)
                             }
                         }.bind(this)
-                        // 关闭回调
+                        //关闭回调
                         this.webSocket.onclose=function (evt) {
                             console.log(evt.data)
                         }
-                        // 出错回调
+                        //出错回调
                         this.webSocket.onerror=function (evt) {
                             console.log(evt.data)
                         }
+                        /*{
+                            this.webSocket.send()
+                        }*/
                     },
                     sendmsg:function(){
 
@@ -324,7 +331,8 @@
                             that.friends = res.rows ||[];
                             var usermap = this.usermap;
                             for(var i in res.rows){
-                                usermap[res.rows[i].id]=res.rows[i];
+                                var k = ""+res.rows[i].id
+                                usermap[k]=res.rows[i];
                             }
                             this.usermap = usermap;
                         }.bind(this))
@@ -337,6 +345,7 @@
                     },
                     addfriend:function(){
                         var that = this;
+                        //prompt
                         mui.prompt('','请输入好友ID','加好友',['取消','确认'],function (e) {
                             if (e.index == 1) {
                                 if (isNaN(e.value) || e.value <= 0) {
@@ -353,20 +362,18 @@
                     },
                     _addfriend:function(dstobj){
                         var that = this
-                        var user = userInfo();
-
-                        post("contact/addFriend",{dstid:dstobj,userid: user.id,pic:user.avatar,content:user.nickname,memo: "请求加你为好友"},function(res){
+                        post("contact/addFriend",{dstid:dstobj,userid: userId()},function(res){
                             if(res.code==0){
                                 mui.toast("添加成功");
                                 that.loadfriends();
                             }else{
-                                mui.toast(res.message);
+                                mui.toast(res.msg);
                             }
                         })
                     },
                     _joincomunity:function(dstobj){
                         var that = this;
-                        post("contact/joinCommunity",{userid:userId(), dstid:dstobj},function(res){
+                        post("contact/joinCommunity",{dstid:dstobj,"userid":userId()},function(res){
                             if(res.code==0){
                                 mui.toast("添加成功");
 
@@ -402,7 +409,7 @@
                 },
                 watch:{
                     "win":function(n,o){
-                        console.log("watch",o,n)
+                       // console.log("watch",o,n)
                         if(n!="main"){
                             document.getElementById("menubar").style.display="none";
                         }else{
